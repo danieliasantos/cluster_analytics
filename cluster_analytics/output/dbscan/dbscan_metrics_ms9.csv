@@ -1,0 +1,2 @@
+algoritmo;min_samples;eps_rad;dbcv;percentual_ruido
+DBSCAN;9;0.00019077067326730968;-2.0;0.0

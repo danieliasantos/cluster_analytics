@@ -1,0 +1,10 @@
+services:
+  cable_theft_analysis:
+    build: .
+    container_name: clustering_analytics
+    user: "${UID:-1000}:${GID:-1000}"
+    environment:
+      - MPLCONFIGDIR=/tmp/matplotlib_cache
+    volumes:
+      - ./cluster_analytics:/app
+    working_dir: /app/scripts

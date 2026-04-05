@@ -1,0 +1,251 @@
+python kmeans.py
+Dados divididos -> Treino (22-24): 13865 ocorrências | Teste (25): 3837 ocorrências
+Preparando K-Means com projeção UTM...
+Avaliando candidatos a K ótimo (Elbow e BIC)...
+Candidatos -> Elbow: 5 | BIC: 15
+Desempate: Elbow (2 votos) x BIC (1 votos) -> Vencedor: k=5
+Dados clusterizados salvos em: ../output/kmeans/kmeans_data_k5.csv
+Mapa salvo em: ../output/kmeans/kmeans_map_k5.png
+Tempo de execução do algoritmo: 33.8286 segundos
+Processamento do K-Means concluído.
+
+=========================================================
+
+python kmedoids.py
+Dados divididos -> Treino (22-24): 13865 ocorrências | Teste (25): 3837 ocorrências
+Preparando K-Medoids com projeção UTM...
+Avaliando candidatos a K ótimo (Elbow e BIC)...
+Candidatos -> Elbow: 7 | BIC: 15
+Desempate: Elbow (3 votos) x BIC (0 votos) -> Vencedor: k=7
+Dados clusterizados salvos em: ../output/kmedoids/kmedoids_data_k7.csv
+Mapa salvo em: ../output/kmedoids/kmedoids_map_k7.png
+Tempo de execução do algoritmo: 110.1172 segundos
+Processamento do K-Medoids concluído.
+
+=========================================================
+
+python hierarchical.py
+Dados divididos -> Treino (22-24): 13865 ocorrências | Teste (25): 3837 ocorrências
+Preparando HAC com projeção UTM e Linkage Ward...
+Avaliando candidatos a K ótimo (Elbow e BIC)...
+Candidatos -> Elbow: 5 | BIC: 15
+Desempate: Elbow (3 votos) x BIC (0 votos) -> Vencedor: k=5
+Dados clusterizados salvos em: ../output/hierarchical/hac_data_k5.csv
+Mapa salvo em: ../output/hierarchical/hac_map_k5.png
+Tempo de execução do algoritmo: 67.7533 segundos
+Processamento do HAC concluído.
+
+=========================================================
+
+python dbscan.py
+Dados divididos -> Treino (22-24): 13865 ocorrências | Teste (25): 3837 ocorrências
+Executando DBSCAN e avaliando min_samples (5 a 30) via DBCV...
+[Aviso] Nenhum teste respeitou o limite de 30.0% de ruído.
+Melhor min_samples (DBCV c/ restrição de ruído): 9 (Score: -2.0000)
+Métricas salvas em: ../output/dbscan/dbscan_metrics_ms9.csv
+Dados clusterizados salvos em: ../output/dbscan/dbscan_data_ms9.csv
+Mapa salvo em: ../output/dbscan/dbscan_map_ms9.png
+Tempo de execução do algoritmo: 219.0310 segundos
+Processamento do DBSCAN concluído.
+
+=========================================================
+
+python h_dbscan.py
+Dados divididos -> Treino (22-24): 13865 ocorrências | Teste (25): 3837 ocorrências
+Executando HDBSCAN e avaliando min_cluster_size (5 a 30) via DBCV...
+Melhor min_cluster_size (DBCV c/ restrição de ruído): 5 (Score: 0.2699)
+Métricas salvas em: ../output/hdbscan/hdbscan_metrics_mcs5.csv
+Dados clusterizados salvos em: ../output/hdbscan/hdbscan_data_mcs5.csv
+Mapa salvo em: ../output/hdbscan/hdbscan_map_mcs5.png
+Tempo de execução do algoritmo: 21.6771 segundos
+
+Gerando mapas de evolução temporal dos clusters (2024-2025)...
+  -> Mapa salvo: evolucao_hdbscan_2024-T1.png
+  -> Mapa salvo: evolucao_hdbscan_2024-T2.png
+  -> Mapa salvo: evolucao_hdbscan_2024-T3.png
+  -> Mapa salvo: evolucao_hdbscan_2024-T4.png
+  -> Mapa salvo: evolucao_hdbscan_2025-T1.png
+  -> Mapa salvo: evolucao_hdbscan_2025-T2.png
+  -> Mapa salvo: evolucao_hdbscan_2025-T3.png
+  -> Mapa salvo: evolucao_hdbscan_2025-T4.png
+Processamento do HDBSCAN concluído.
+
+=========================================================
+
+python kde.py
+Dados divididos -> Treino (22-24): 13865 ocorrências | Teste (25): 3837 ocorrências
+Iniciando KDE (Grid Contínuo) - Bandwidth: 1000m...
+Área Total de BH: 331.19 km²
+Área delimitada pelo KDE: 33.12 km²
+Dados clusterizados salvos em: ../output/kde/kde_baseline_data.csv
+Tempo de execução do algoritmo: 37.9097 segundos
+Concluído! Dados salvos em: kde/kde_baseline_data.csv
+
+=========================================================
+
+python pai_pei_benchmark.py
+Iniciando Benchmark de Eficiência Preditiva...
+/usr/local/lib/python3.11/site-packages/pyogrio/raw.py:200: RuntimeWarning: GPKG: unrecognized user_version=0x00000000 (0) on '../data/bh_regional.gpkg'
+  return ogr_read(
+Limitação Logística (Esforço Tático): 10.0% de BH = 33.12 km²
+------------------------------------------------------------
+[HDBSCAN] Sucesso -> Acerto: 30.26% | PAI: 4.8691
+[DBSCAN] Sucesso -> Acerto: 0.0% | PAI: 0.0
+[K-Means] Sucesso -> Acerto: 33.12% | PAI: 2.1299
+[K-Medoids] Sucesso -> Acerto: 23.72% | PAI: 2.7583
+[HAC (Ward)] Sucesso -> Acerto: 35.11% | PAI: 2.0963
+[KDE] Sucesso -> Acerto: 17.15% | PAI: 6.2149
+------------------------------------------------------------
+
+Benchmark concluído! Tabela salva em: ../output/benchmark/tabela_geral_benchmark.csv
+
+Ranking de Eficiência (Melhor PAI):
+    Modelo  Taxa de Acerto (%)    PAI    PEI
+       KDE               17.15 6.2149 0.2534
+   HDBSCAN               30.26 4.8691 0.3026
+ K-Medoids               23.72 2.7583 0.2372
+   K-Means               33.12 2.1299 0.3312
+HAC (Ward)               35.11 2.0963 0.3511
+    DBSCAN                0.00 0.0000 0.0000
+
+=========================================================
+
+python pai_pei_benchmark_temporal.py
+Iniciando Benchmark Preditivo Temporal (Treino vs Teste)...
+Processando HDBSCAN...
+Processando DBSCAN...
+Processando K-Means...
+Processando K-Medoids...
+Processando HAC (Ward)...
+Processando KDE...
+Concluído! Tabelas e gráficos guardados na pasta: ../output/benchmark
+Tempo de execução do algoritmo: 385.8551 segundos
+
+=========================================================
+
+python pai_pei_benchmark_graphic.py
+Lendo dados detalhados e processando consolidação...
+-> CSV Consolidado salvo em: ../output/benchmark/benchmark_temporal_consolidado.csv
+
+=========================================================
+
+python friedman_test.py
+Carregando dados para análise estatística...
+
+==================================================
+Testando granularidade Semanal
+==================================================
+
+Total de amostras temporais (Semanas) analisadas: 52
+Modelos comparados: ['HAC (Ward)', 'HDBSCAN', 'K-Means', 'K-Medoids', 'KDE']
+
+--------------------
+Teste de Friedman
+--------------------
+Chi^2: 148.8175
+P-value: 3.648553e-31
+CONCLUSAO: HÁ DIFERENÇA estatisticamente significativa entre os algoritmos, pois p_value < 0.05.
+Teste Post-Hoc de Nemenyi...
+
+------------------------------
+Matriz P-value de Nemenyi
+------------------------------
+Modelo      HAC (Ward)   HDBSCAN       K-Means     K-Medoids       KDE
+Modelo
+HAC (Ward)    1.000000  0.002646  4.304795e-01  0.000000e+00  0.000000
+HDBSCAN       0.002646  1.000000  3.052021e-01  5.839311e-03  0.000000
+K-Means       0.430479  0.305202  1.000000e+00  9.590000e-07  0.000000
+K-Medoids     0.000000  0.005839  9.590000e-07  1.000000e+00  0.003738
+KDE           0.000000  0.000000  0.000000e+00  3.737718e-03  1.000000
+
+- Valores da matriz menores que 0.05 indicam que a diferença entre o par de modelos é ESTATISTICAMENTE SIGNIFICATIVA.
+
+==================================================
+Testando granularidade Mensal
+==================================================
+
+Total de amostras temporais (Semanas) analisadas: 12
+Modelos comparados: ['HAC (Ward)', 'HDBSCAN', 'K-Means', 'K-Medoids', 'KDE']
+
+--------------------
+Teste de Friedman
+--------------------
+Chi^2: 39.8000
+P-value: 4.760868e-08
+CONCLUSAO: HÁ DIFERENÇA estatisticamente significativa entre os algoritmos, pois p_value < 0.05.
+Teste Post-Hoc de Nemenyi...
+
+------------------------------
+Matriz P-value de Nemenyi
+------------------------------
+Modelo        HAC (Ward)   HDBSCAN   K-Means  K-Medoids           KDE
+Modelo
+HAC (Ward)  1.000000e+00  0.036444  0.530299   0.000601  6.300000e-08
+HDBSCAN     3.644367e-02  1.000000  0.696814   0.773128  2.488351e-02
+K-Means     5.302986e-01  0.696814  1.000000   0.101613  1.981790e-04
+K-Medoids   6.006000e-04  0.773128  0.101613   1.000000  3.691688e-01
+KDE         6.300000e-08  0.024884  0.000198   0.369169  1.000000e+00
+
+- Valores da matriz menores que 0.05 indicam que a diferença entre o par de modelos é ESTATISTICAMENTE SIGNIFICATIVA.
+
+==================================================
+Testando granularidade Bimestral
+==================================================
+
+Total de amostras temporais (Semanas) analisadas: 6
+Modelos comparados: ['HAC (Ward)', 'HDBSCAN', 'K-Means', 'K-Medoids', 'KDE']
+
+--------------------
+Teste de Friedman
+--------------------
+Chi^2: 21.7333
+P-value: 2.264620e-04
+CONCLUSAO: HÁ DIFERENÇA estatisticamente significativa entre os algoritmos, pois p_value < 0.05.
+Teste Post-Hoc de Nemenyi...
+
+------------------------------
+Matriz P-value de Nemenyi
+------------------------------
+Modelo      HAC (Ward)   HDBSCAN   K-Means  K-Medoids       KDE
+Modelo
+HAC (Ward)    1.000000  0.588230  0.704809   0.016383  0.000259
+HDBSCAN       0.588230  1.000000  0.999752   0.469644  0.048530
+K-Means       0.704809  0.999752  1.000000   0.358566  0.028750
+K-Medoids     0.016383  0.469644  0.358566   1.000000  0.808998
+KDE           0.000259  0.048530  0.028750   0.808998  1.000000
+
+- Valores da matriz menores que 0.05 indicam que a diferença entre o par de modelos é ESTATISTICAMENTE SIGNIFICATIVA.
+
+==================================================
+Testando granularidade Trimestral
+==================================================
+
+Total de amostras temporais (Semanas) analisadas: 4
+Modelos comparados: ['HAC (Ward)', 'HDBSCAN', 'K-Means', 'K-Medoids', 'KDE']
+
+--------------------
+Teste de Friedman
+--------------------
+Chi^2: 14.2000
+P-value: 6.683350e-03
+CONCLUSAO: HÁ DIFERENÇA estatisticamente significativa entre os algoritmos, pois p_value < 0.05.
+Teste Post-Hoc de Nemenyi...
+
+------------------------------
+Matriz P-value de Nemenyi
+------------------------------
+Modelo      HAC (Ward)   HDBSCAN   K-Means  K-Medoids       KDE
+Modelo
+HAC (Ward)    1.000000  0.899078  0.797105   0.099962  0.007124
+HDBSCAN       0.899078  1.000000  0.999447   0.519844  0.099962
+K-Means       0.797105  0.999447  1.000000   0.665070  0.166409
+K-Medoids     0.099962  0.519844  0.665070   1.000000  0.899078
+KDE           0.007124  0.099962  0.166409   0.899078  1.000000
+
+- Valores da matriz menores que 0.05 indicam que a diferença entre o par de modelos é ESTATISTICAMENTE SIGNIFICATIVA.
+
+=========================================================
+
+python temporal_decay.py
+Iniciando geração do comparativo do decaimento preditivo...
+-> Comparativo decaimento preditivo salvo em: ../output/benchmark/comparativo_decaimento_preditivo.png
