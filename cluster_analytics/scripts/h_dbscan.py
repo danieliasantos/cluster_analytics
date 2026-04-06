@@ -23,7 +23,7 @@ class HDBSCANAnalytics(BaseAlgorithm):
         jitter = np.random.normal(loc=0.0, scale=1e-8, size=self.X_rad.shape)
         self.X_rad = self.X_rad + jitter
         
-        self.range_min_cluster_size = range(5, 31)#range(3, 31) #5 é o limite mínimo
+        self.range_min_cluster_size = range(30, 31)#range(3, 31) #5 é o limite mínimo
 
     def _gerar_mapas_evolucao(self, melhor_mcs):
         print("\nGerando mapas de evolução temporal dos clusters (2024-2025)...")

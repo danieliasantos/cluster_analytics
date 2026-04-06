@@ -33,7 +33,7 @@ class TesteEstatistico:
             print("Teste de Friedman")
             print("-" * 20)
             print(f"Chi^2: {chi:.4f}")
-            print(f"P-value: {p_value:.6e}")
+            print(f"P-value: {p_value:.4e}")
             
             if p_value < 0.05:
                 print("CONCLUSAO: HÁ DIFERENÇA estatisticamente significativa entre os algoritmos, pois p_value < 0.05.\nTeste Post-Hoc de Nemenyi...\n")
@@ -48,7 +48,7 @@ class TesteEstatistico:
                 print("-" * 20)
                 print("Matriz P-value de Nemenyi")
                 print("-" * 250)
-                print(nemenyi_res.round(9))
+                print(nemenyi_res.round(12))
                 
                 print("\n- Valores da matriz menores que 0.05 indicam que a diferença entre o par de modelos é ESTATISTICAMENTE SIGNIFICATIVA.")
                 
