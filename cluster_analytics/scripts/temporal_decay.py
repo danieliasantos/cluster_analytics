@@ -2,16 +2,16 @@ import os
 import pandas as pd
 import geopandas as gpd
 import matplotlib.pyplot as plt
+from shapely.geometry import Point
 import matplotlib.patches as mpatches
 import matplotlib.lines as mlines
 
-class VisualizacaoDecaimento():
+class GeradorPainelDecaimentoHorizontal:
     def __init__(self):
-        super().__init__()
         self.gpkg_path = '../data/bh_regional.gpkg'
-        self.hdbscan_csv = '../output/hdbscan/hdbscan_data_mcs5.csv'
+        self.hdbscan_csv = '../output/hdbscan/hdbscan_data_mcs5.csv' 
         self.output_dir = '../output/benchmark'
-        self.crs_projetado = "EPSG:31983"
+        self.crs_projetado = "EPSG:31983" # Sirgas 2000 / UTM zone 23S (Métrico)
         self.target_area_percentage = 0.10
 
     def _create_geodataframe(self, df):
@@ -20,32 +20,31 @@ class VisualizacaoDecaimento():
         lon_col = colunas_lower.get('longitude', colunas_lower.get('lon'))
         gdf = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df[lon_col], df[lat_col]), crs="EPSG:4326")
         return gdf.to_crs(self.crs_projetado)
-    
+
     def run(self):
-        print("Iniciando geração do comparativo do decaimento preditivo...")
+        print("Iniciando geração do painel horizontal de decaimento preditivo (1x4)...")
         
-        # Carrega o mapa base
+        if not os.path.exists(self.gpkg_path):
+            print(f"[!] Erro: Arquivo de mapa {self.gpkg_path} não encontrado.")
+            return
         mapa_bh = gpd.read_file(self.gpkg_path).to_crs(self.crs_projetado)
         area_total_bh = mapa_bh.geometry.area.sum() / 10**6
         target_area_km2 = area_total_bh * self.target_area_percentage
-        
-        # Carrega os dados processados do HDBSCAN
-        if not os.path.exists(self.hdbscan_csv):
-            print(f"[!] Erro: Arquivo {self.hdbscan_csv} não encontrado.")
-            return
-        df = pd.read_csv(self.hdbscan_csv, sep=';', engine='python')
-        self.gdf = self._create_geodataframe(df)
-        # Garante a coluna de data e extrai o trimestre
-        self.gdf['data_hora'] = pd.to_datetime(self.gdf['data_hora'])
-        self.gdf['trimestre'] = self.gdf['data_hora'].dt.quarter
-        df = None        
-        
-        # Separa Treino (2022-2024) e Teste (2025)
-        col_label = 'cluster_label' if 'cluster_label' in self.gdf.columns else 'cluster'
-        gdf_treino = self.gdf[self.gdf['tipo_dado'] == 'treino'].copy()
-        gdf_teste = self.gdf[self.gdf['tipo_dado'] == 'teste'].copy()
 
-        # Reconstrói os clusteres de treino (com restricao 10% de área)
+        if not os.path.exists(self.hdbscan_csv):
+            print(f"[!] Erro: Arquivo de dados {self.hdbscan_csv} não encontrado.")
+            return
+
+        df = pd.read_csv(self.hdbscan_csv, sep=';', engine='python')
+        gdf = self._create_geodataframe(df)
+        
+        gdf['data_hora'] = pd.to_datetime(gdf['data_hora'])
+        gdf['trimestre'] = gdf['data_hora'].dt.quarter
+        
+        gdf_treino = gdf[gdf['tipo_dado'] == 'treino'].copy()
+        gdf_teste = gdf[gdf['tipo_dado'] == 'teste'].copy()
+
+        col_label = 'cluster_label'
         clusters_validos = [c for c in gdf_treino[col_label].unique() if c not in [-1, -2]]
         dados_clusters = []
         
@@ -53,12 +52,11 @@ class VisualizacaoDecaimento():
             pts_cluster = gdf_treino[gdf_treino[col_label] == c]
             if len(pts_cluster) < 3: 
                 continue 
-            hull = pts_cluster.geometry.union_all().convex_hull.buffer(10) # Buffer para criar o polígono
+            hull = pts_cluster.geometry.union_all().convex_hull.buffer(50) 
             area_c = hull.area / 10**6
             qtd_c = len(pts_cluster)
             dados_clusters.append({'cluster': c, 'area': area_c, 'densidade': qtd_c / area_c if area_c > 0 else 0, 'poly': hull})
         
-        # Ordena por densidade e seleciona até atingir 10% da área
         dados_clusters = sorted(dados_clusters, key=lambda x: x['densidade'], reverse=True)
         area_tatico_km2 = 0.0
         poligonos_selecionados = []
@@ -68,51 +66,46 @@ class VisualizacaoDecaimento():
                 area_tatico_km2 += dc['area']
                 poligonos_selecionados.append(dc['poly'])
             else:
-                break 
-        
+                break
+                
         poly_tatico = gpd.GeoDataFrame(geometry=poligonos_selecionados, crs=self.crs_projetado)
 
-        # Configuração da saida plot 2x2
-        fig, axes = plt.subplots(2, 2, figsize=(18, 18))
-        fig.suptitle('Decaimento Preditivo:\nDados de Treino (Treino 2022-2024) vs. Dados de Avaliação (2025)', fontsize=16, fontweight='bold', y=0.92)
+        fig, axes = plt.subplots(1, 4, figsize=(24, 12))
+        
+        fig.suptitle('Decaimento Preditivo HDBSCAN (mcs=5, 10% área coberta)\nTreinamento vs. Avaliação', fontsize=18, fontweight='bold', y=0.98)
         
         trimestres = [1, 2, 3, 4]
-        titulos = ['1º Trimestre 2025', '2º Trimestre 2025', '3º Trimestre 2025', '4º Trimestre 2025']
+        titulos = ['1º Trimestre (Jan-Mar)', '2º Trimestre (Abr-Jun)', '3º Trimestre (Jul-Set)', '4º Trimestre (Out-Dez)']
         
         for ax, trim, titulo in zip(axes.flatten(), trimestres, titulos):
-            # Plota o mapa base
-            mapa_bh.plot(ax=ax, color='#f0f0f0', edgecolor='#cccccc', linewidth=0.5)
+            mapa_bh.plot(ax=ax, color='#c7c7c7', edgecolor='#dddddd', linewidth=0.5)
             
-            # Plota os polígonos dos dados de treino do HDBSCAN
-            poly_tatico.plot(ax=ax, color='red', alpha=0.4, edgecolor='darkred', linewidth=1.5, label='Dados de treino (Clusters 2022-2024)')
+            poly_tatico.plot(ax=ax, color='red', alpha=0.4, edgecolor='darkred', linewidth=1.0, label='Dados de Treino')
             
-            # Filtra os dados de teste para o trimestre atual
             gdf_trim = gdf_teste[gdf_teste['trimestre'] == trim]
-            #print(f"Total de ocorrências plotadas no {trim}º Trimestre: {len(gdf_trim)}")
             
-            # Plota os crimes reais ocorridos no trimestre
             if not gdf_trim.empty:
-                gdf_trim.plot(ax=ax, color='black', markersize=8, alpha=0.7, label='Ocorrências (Teste)')
+                gdf_trim.plot(ax=ax, color='black', markersize=6, alpha=0.6, label='Furtos Reais (Teste)')
             
-            ax.set_title(titulo, fontsize=14, pad=10)
-            ax.set_axis_off()
+            ax.set_title(titulo, fontsize=16, pad=8)
+            ax.set_axis_off() # Remove eixos com coordenadas
             
-            
-            #if trim == 1: # Adiciona a legenda apenas no primeiro gráfico
-            # Criar patches manuais para a legenda
-            red_patch = mpatches.Patch(color='red', alpha=0.4, label='Treino: Clusters 2022-2024')
-            black_dot = mlines.Line2D([], [], color='black', marker='o', linestyle='None', markersize=5, label=f'Avaliação: {len(gdf_trim)} ocorrências {trim}º 2025')
-            ax.legend(handles=[red_patch, black_dot], loc='lower right', fontsize=11)
+            pontos = mlines.Line2D([], [], color='black', marker='o', linestyle='None', markersize=5, alpha=0.6, label=f'{len(gdf_trim)} ocorrências')
+            ax.legend(handles=[pontos], loc='lower center', fontsize=10, framealpha=0.9)
 
-        plt.tight_layout(rect=[0, 0.03, 1, 0.90])
+        red_patch = mpatches.Patch(color='red', alpha=0.4, label='Dados de Treino (Clusters 2022-2024)')
+        black_dot = mlines.Line2D([], [], color='black', marker='o', linestyle='None', markersize=7, alpha=0.6, label='Dados de Avaliação (Ocorrências 2025)')
         
-        # Salva a imagem
+        fig.legend(handles=[red_patch, black_dot], loc='upper center', bbox_to_anchor=(0.5, 0.88), ncol=2, fontsize=15, frameon=False)
+
+        plt.tight_layout(rect=[0, 0.02, 1, 0.82])
+        
         os.makedirs(self.output_dir, exist_ok=True)
         out_file = os.path.join(self.output_dir, 'comparativo_decaimento_preditivo.png')
-        plt.savefig(out_file, dpi=600, bbox_inches='tight')
+        plt.savefig(out_file, dpi=300, bbox_inches='tight')
         plt.close()
         
-        print(f"-> Comparativo decaimento preditivo salvo em: {out_file}")
+        print(f"-> Visualização do decaimento temporal criada com sucesso em: {out_file}")
 
 if __name__ == "__main__":
-    VisualizacaoDecaimento().run()
+    GeradorPainelDecaimentoHorizontal().run()
