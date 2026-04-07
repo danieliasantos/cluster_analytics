@@ -6,9 +6,10 @@ import hdbscan
 import geopandas as gpd
 import matplotlib.patches as mpatches
 import matplotlib.lines as mlines
-
 from base_algorithm import BaseAlgorithm
 import time
+import warnings
+warnings.filterwarnings('ignore', category=RuntimeWarning, message='.*unrecognized user_version.*')
 
 class HDBSCANAnalytics(BaseAlgorithm):
     def __init__(self):

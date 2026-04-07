@@ -6,6 +6,8 @@ from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
 import geopandas as gpd
 from shapely.geometry import Point
+import warnings
+warnings.filterwarnings('ignore', category=RuntimeWarning, message='.*unrecognized user_version.*')
 
 class BaseAlgorithm:
     def __init__(self):

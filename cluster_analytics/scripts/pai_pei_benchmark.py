@@ -3,6 +3,8 @@ import pandas as pd
 import geopandas as gpd
 import numpy as np
 from shapely.geometry import Polygon
+import warnings
+warnings.filterwarnings('ignore', category=RuntimeWarning, message='.*unrecognized user_version.*')
 
 class BenchmarkPaiPei:
     def __init__(self):

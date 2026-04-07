@@ -5,6 +5,9 @@ import matplotlib.pyplot as plt
 from shapely.geometry import Point
 import matplotlib.patches as mpatches
 import matplotlib.lines as mlines
+import warnings
+warnings.filterwarnings('ignore', category=RuntimeWarning, message='.*unrecognized user_version.*')
+
 
 class GeradorPainelDecaimentoHorizontal:
     def __init__(self):

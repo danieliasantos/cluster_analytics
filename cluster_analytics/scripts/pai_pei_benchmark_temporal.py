@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from shapely.geometry import Polygon
 import time
+import warnings
+warnings.filterwarnings('ignore', category=RuntimeWarning, message='.*unrecognized user_version.*')
 
 class BenchmarkTemporal:
     def __init__(self):
